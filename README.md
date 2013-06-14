@@ -1,4 +1,4 @@
 UIViewController-Sharing
 ========================
 
-A category on UIViewController for adding sharing options
+A category on UIViewController for adding sharing options.
