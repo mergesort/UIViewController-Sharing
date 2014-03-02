@@ -7,12 +7,10 @@
 //
 
 #import "UIViewController+Sharing.h"
-#import "NSString+Transforms.h"
+
 #import <Social/Social.h>
+#import <objc/runtime.h>
 
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark - Implementation
 
 @implementation UIViewController (Sharing)
 
@@ -20,22 +18,22 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Sharing state
 
-+ (BOOL)canShareViaText
+- (BOOL)canShareViaText
 {
     return [MFMessageComposeViewController canSendText];
 }
 
-+ (BOOL)canShareViaEmail
+- (BOOL)canShareViaEmail
 {
     return [MFMailComposeViewController canSendMail];
 }
 
-+ (BOOL)canShareViaTwitter
+- (BOOL)canShareViaTwitter
 {
     return [SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter];
 }
 
-+ (BOOL)canShareViaFacebook
+- (BOOL)canShareViaFacebook
 {
     return [SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook];
 }
@@ -46,23 +44,23 @@
 
 - (void)shareViaTextWithMessage:(NSString *)message
 {
-    if ([UIViewController canShareViaText])
+    if (self.canShareViaText)
     {        
         MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
-        messageController.delegate = self;
+        messageController.messageComposeDelegate = self;
         messageController.body = message;
         [self presentViewController:messageController animated:YES completion:nil];
     }
 }
 
-- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message
+- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML
 {
-    if ([UIViewController canShareViaEmail])
+    if (self.canShareViaEmail)
     {        
         MFMailComposeViewController *mailController = [[MFMailComposeViewController alloc] init];
         [mailController setSubject:subject];
-        [mailController setMessageBody:message isHTML:YES];
-        mailController.delegate = self;
+        [mailController setMessageBody:message isHTML:HTML];
+        mailController.mailComposeDelegate = self;
         [self presentViewController:mailController animated:YES completion:nil];
     }
     else
@@ -74,7 +72,7 @@
 
 - (void)shareViaFacebookWithMessage:(NSString *)message withImage:(UIImage *)image
 {
-    if ([UIViewController canShareViaFacebook])
+    if (self.canShareViaFacebook)
     {
         [self shareViaSLComposeViewController:SLServiceTypeFacebook withMessage:message withImage:image];
     }
@@ -87,7 +85,7 @@
 
 - (void)shareViaTwitterWithMessage:(NSString *)message withImage:(UIImage *)image
 {
-    if ([UIViewController canShareViaTwitter])
+    if (self.canShareViaTwitter)
     {
         [self shareViaSLComposeViewController:SLServiceTypeTwitter withMessage:message withImage:image];
     }
@@ -97,6 +95,10 @@
         [alert show];
     }
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Private helpers
 
 - (void)shareViaSLComposeViewController:(NSString *)network withMessage:(NSString *)message withImage:(UIImage *)image
 {
@@ -123,6 +125,8 @@
 
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
 {
+    [controller dismissViewControllerAnimated:YES completion:nil];
+
     if (result == MFMailComposeResultFailed)
     {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error sending email!", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
@@ -132,12 +136,13 @@
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
 {
+    [controller dismissViewControllerAnimated:YES completion:nil];
+    
     if (result == MessageComposeResultFailed)
     {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"An error occurred sending this message" message:nil delegate:self cancelButtonTitle:@"Sorry :(" otherButtonTitles:nil, nil];
         [alert show];
     }
 }
-
 
 @end

@@ -17,13 +17,13 @@
     UINavigationControllerDelegate
 >
 
-+ (BOOL)canShareViaText;
-+ (BOOL)canShareViaEmail;
-+ (BOOL)canShareViaTwitter;
-+ (BOOL)canShareViaFacebook;
+- (BOOL)canShareViaText;
+- (BOOL)canShareViaEmail;
+- (BOOL)canShareViaTwitter;
+- (BOOL)canShareViaFacebook;
 
 - (void)shareViaTextWithMessage:(NSString *)message;
-- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message;
+- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML;
 - (void)shareViaFacebookWithMessage:(NSString *)message withImage:(UIImage *)image;
 - (void)shareViaTwitterWithMessage:(NSString *)message withImage:(UIImage *)image;
 
