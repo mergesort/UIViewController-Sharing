@@ -4,7 +4,7 @@ Pod::Spec.new do |spec|
   spec.license      = { :type => 'MIT', :file => 'LICENSE' }
   spec.homepage     = 'https://github.com/mergesort/UIViewController-Sharing'
   spec.authors      =  { 'Joe Fabisevich' => 'github@fabisevi.ch' }
-  spec.summary      = 'A category on UIViewController for adding Apple's built in sharing options.'
+  spec.summary      = 'A category on UIViewController for adding Apple\'s built in sharing options.'
   spec.source       =   { :git => 'https://github.com/mergesort/UIViewController-Sharing.git', :tag => "#{spec.version}" }
   spec.source_files = 'UIViewController+Sharing.{h,m}'
   spec.framework    = 'Foundation'
