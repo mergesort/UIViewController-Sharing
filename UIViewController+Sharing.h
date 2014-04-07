@@ -21,10 +21,14 @@
 - (BOOL)canShareViaEmail;
 - (BOOL)canShareViaTwitter;
 - (BOOL)canShareViaFacebook;
+- (BOOL)canShareViaSinaWeibo;
+- (BOOL)canShareViaTencentWeibo;
 
 - (void)shareViaTextWithMessage:(NSString *)message;
 - (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML;
 - (void)shareViaFacebookWithMessage:(NSString *)message withImage:(UIImage *)image;
 - (void)shareViaTwitterWithMessage:(NSString *)message withImage:(UIImage *)image;
+- (void)shareViaSinaWeiboWithMessage:(NSString *)message withImage:(UIImage *)image;
+- (void)shareViaTencentWeiboWithMessage:(NSString *)message withImage:(UIImage *)image;
 
 @end

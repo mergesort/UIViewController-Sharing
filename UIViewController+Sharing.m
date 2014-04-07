@@ -38,6 +38,16 @@
     return [SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook];
 }
 
+- (BOOL)canShareViaSinaWeibo
+{
+    return [SLComposeViewController isAvailableForServiceType:SLServiceTypeSinaWeibo];
+}
+
+- (BOOL)canShareViaTencentWeibo
+{
+    return [SLComposeViewController isAvailableForServiceType:SLServiceTypeTencentWeibo];
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Handle sharing
@@ -92,6 +102,32 @@
     else
     {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Twitter set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
+        [alert show];
+    }
+}
+
+- (void)shareViaSinaWeiboWithMessage:(NSString *)message withImage:(UIImage *)image
+{
+    if (self.canShareViaSinaWeibo)
+    {
+        [self shareViaSLComposeViewController:SLServiceTypeSinaWeibo withMessage:message withImage:image];
+    }
+    else
+    {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Sina Weibo set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
+        [alert show];
+    }
+}
+
+- (void)shareViaTencentWeiboWithMessage:(NSString *)message withImage:(UIImage *)image
+{
+    if (self.canShareViaTencentWeibo)
+    {
+        [self shareViaSLComposeViewController:SLServiceTypeTencentWeibo withMessage:message withImage:image];
+    }
+    else
+    {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Tencent Weibo set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
         [alert show];
     }
 }
