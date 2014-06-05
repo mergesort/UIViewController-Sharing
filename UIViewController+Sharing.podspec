@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = 'UIViewController+Sharing'
-  spec.version      = '1.1.0'
+  spec.version      = '1.1.1'
   spec.license      = { :type => 'MIT', :file => 'LICENSE' }
   spec.homepage     = 'https://github.com/mergesort/UIViewController-Sharing'
   spec.authors      =  { 'Joe Fabisevich' => 'github@fabisevi.ch' }

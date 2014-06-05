@@ -16,6 +16,20 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Associated objects
+
+- (void)setSharingCompleted:(void (^)(BOOL, SharingService))sharingCompleted
+{
+    objc_setAssociatedObject(self, @selector(setSharingCompleted:), sharingCompleted, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (void (^)(BOOL, SharingService))sharingCompleted
+{
+    return objc_getAssociatedObject(self, @selector(setSharingCompleted:));
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Sharing state
 
 - (BOOL)canShareViaText
@@ -55,7 +69,7 @@
 - (void)shareViaTextWithMessage:(NSString *)message
 {
     if (self.canShareViaText)
-    {        
+    {
         MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
         messageController.messageComposeDelegate = self;
         messageController.body = message;
@@ -66,7 +80,7 @@
 - (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML
 {
     if (self.canShareViaEmail)
-    {        
+    {
         MFMailComposeViewController *mailController = [[MFMailComposeViewController alloc] init];
         [mailController setSubject:subject];
         [mailController setMessageBody:message isHTML:HTML];
@@ -148,8 +162,13 @@
         {
             [composeController addImage:image];
         }
+        
         composeController.completionHandler = ^(SLComposeViewControllerResult result) {
             [self dismissViewControllerAnimated:YES completion:nil];
+            if (self.sharingCompleted)
+            {
+                self.sharingCompleted((result == SLComposeViewControllerResultDone), serviceForNetwork(network));
+            }
         };
         [self presentViewController:composeController animated:YES completion:nil];
     }
@@ -162,12 +181,17 @@
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
 {
     [controller dismissViewControllerAnimated:YES completion:nil];
-
+    
     if (result == MFMailComposeResultFailed)
     {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error sending email!", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
         [alert show];
-    }    
+    }
+    
+    if (self.sharingCompleted)
+    {
+        self.sharingCompleted((result != MFMailComposeResultFailed), SharingServiceTextMessage);
+    }
 }
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
@@ -179,6 +203,102 @@
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"An error occurred sending this message" message:nil delegate:self cancelButtonTitle:@"Sorry :(" otherButtonTitles:nil, nil];
         [alert show];
     }
+    
+    if (self.sharingCompleted)
+    {
+        self.sharingCompleted((result != MessageComposeResultFailed), SharingServiceTextMessage);
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Public methods
+
+NSString * stringForService(SharingService service)
+{
+    NSString *string;
+    
+    switch (service)
+    {
+        case SharingServiceTextMessage:
+        {
+            string = @"text_message";
+            break;
+        }
+            
+        case SharingServiceEmail:
+        {
+            string = @"email";
+            break;
+        }
+            
+        case SharingServiceTwitter:
+        {
+            string = @"twitter";
+            break;
+        }
+            
+        case SharingServiceFacebook:
+        {
+            string = @"facebook";
+            break;
+        }
+            
+        case SharingServiceSinaWeibo:
+        {
+            string = @"sina_weibo";
+            break;
+        }
+            
+        case SharingServiceTencentWeibo:
+        {
+            string = @"tencent_weibo";
+            break;
+        }
+            
+        case SharingServiceError:
+        {
+            string = @"error";
+            break;
+        }
+            
+        default:
+            break;
+    }
+    
+    return string;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Private helpers
+
+SharingService serviceForNetwork(NSString *network)
+{
+    SharingService service;
+    
+    if ([network isEqualToString:SLServiceTypeTwitter])
+    {
+        service = SharingServiceTwitter;
+    }
+    else if ([network isEqualToString:SLServiceTypeFacebook])
+    {
+        service = SharingServiceFacebook;
+    }
+    else if ([network isEqualToString:SLServiceTypeSinaWeibo])
+    {
+        service = SharingServiceSinaWeibo;
+    }
+    else if ([network isEqualToString:SLServiceTypeTencentWeibo])
+    {
+        service = SharingServiceTencentWeibo;
+    }
+    else
+    {
+        service = SharingServiceError;
+    }
+    
+    return service;
 }
 
 @end
