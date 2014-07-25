@@ -77,13 +77,14 @@
     }
 }
 
-- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML
+- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML toRecepients:(NSArray *)recepients
 {
     if (self.canShareViaEmail)
     {
         MFMailComposeViewController *mailController = [[MFMailComposeViewController alloc] init];
         [mailController setSubject:subject];
         [mailController setMessageBody:message isHTML:HTML];
+        [mailController setToRecipients:recepients];
         mailController.mailComposeDelegate = self;
         [self presentViewController:mailController animated:YES completion:nil];
     }

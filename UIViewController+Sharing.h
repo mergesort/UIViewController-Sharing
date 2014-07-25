@@ -43,7 +43,7 @@ typedef NS_ENUM(NSInteger, SharingService)
 - (BOOL)canShareViaTencentWeibo;
 
 - (void)shareViaTextWithMessage:(NSString *)message;
-- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML;
+- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML toRecepients:(NSArray *)recepients;
 - (void)shareViaFacebookWithMessage:(NSString *)message withImage:(UIImage *)image;
 - (void)shareViaTwitterWithMessage:(NSString *)message withImage:(UIImage *)image;
 - (void)shareViaSinaWeiboWithMessage:(NSString *)message withImage:(UIImage *)image;
