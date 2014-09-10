@@ -48,6 +48,8 @@ typedef NS_ENUM(NSInteger, SharingService)
 - (void)shareViaTwitterWithMessage:(NSString *)message withImage:(UIImage *)image;
 - (void)shareViaSinaWeiboWithMessage:(NSString *)message withImage:(UIImage *)image;
 - (void)shareViaTencentWeiboWithMessage:(NSString *)message withImage:(UIImage *)image;
+- (void)shareViaCopyString:(NSString *)string;
+- (void)shareViaCopyURL:(NSURL *)URL;
 
 @property (nonatomic, copy) void (^sharingCompleted)(BOOL success, SharingService service);
 

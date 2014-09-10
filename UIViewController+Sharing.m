@@ -147,6 +147,18 @@
     }
 }
 
+- (void)shareViaCopyString:(NSString *)string
+{
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = string;
+}
+
+- (void)shareViaCopyURL:(NSURL *)URL
+{
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.URL = URL;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Private helpers
