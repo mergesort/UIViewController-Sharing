@@ -11,18 +11,15 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-#pragma mark - Enums
+#pragma mark - Constants
 
-typedef NS_ENUM(NSInteger, SharingService)
-{
-    SharingServiceTextMessage,
-    SharingServiceEmail,
-    SharingServiceTwitter,
-    SharingServiceFacebook,
-    SharingServiceSinaWeibo,
-    SharingServiceTencentWeibo,
-    SharingServiceError,
-};
+extern NSString * const textMessageSharingService;
+extern NSString * const emailSharingService;
+extern NSString * const twitterSharingService;
+extern NSString * const facebookSharingService;
+extern NSString * const sinaWeiboSharingService;
+extern NSString * const tencentWeiboSharingService;
+extern NSString * const cancelledSharingService;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +40,7 @@ typedef NS_ENUM(NSInteger, SharingService)
 - (BOOL)canShareViaTencentWeibo;
 
 - (void)shareViaTextWithMessage:(NSString *)message;
-- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML toRecepients:(NSArray *)recepients;
+- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML toRecepients:(NSArray *)recepients ccRecepients:(NSArray *)ccRecepients bccRecepients:(NSArray *)bccRecepients;
 - (void)shareViaFacebookWithMessage:(NSString *)message withImage:(UIImage *)image;
 - (void)shareViaTwitterWithMessage:(NSString *)message withImage:(UIImage *)image;
 - (void)shareViaSinaWeiboWithMessage:(NSString *)message withImage:(UIImage *)image;
@@ -51,8 +48,6 @@ typedef NS_ENUM(NSInteger, SharingService)
 - (void)shareViaCopyString:(NSString *)string;
 - (void)shareViaCopyURL:(NSURL *)URL;
 
-@property (nonatomic, copy) void (^sharingCompleted)(BOOL success, SharingService service);
-
-NSString * stringForService(SharingService service);
+@property (nonatomic, copy) void (^sharingCompleted)(BOOL success, NSString *sharingService);
 
 @end

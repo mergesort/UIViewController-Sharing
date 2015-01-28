@@ -12,18 +12,33 @@
 #import <objc/runtime.h>
 
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Constants
+
+NSString * const textMessageSharingService = @"text_message";
+NSString * const emailSharingService = @"email";
+NSString * const twitterSharingService = @"twitter";
+NSString * const facebookSharingService = @"facebook";
+NSString * const sinaWeiboSharingService = @"sina_weibo";
+NSString * const tencentWeiboSharingService = @"tencent_weibo";
+NSString * const cancelledSharingService = @"cancelled";
+
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Implementation
+
 @implementation UIViewController (Sharing)
 
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Associated objects
 
-- (void)setSharingCompleted:(void (^)(BOOL, SharingService))sharingCompleted
+- (void)setSharingCompleted:(void (^)(BOOL, NSString *))sharingCompleted
 {
     objc_setAssociatedObject(self, @selector(setSharingCompleted:), sharingCompleted, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (void (^)(BOOL, SharingService))sharingCompleted
+- (void (^)(BOOL, NSString *))sharingCompleted
 {
     return objc_getAssociatedObject(self, @selector(setSharingCompleted:));
 }
@@ -77,7 +92,7 @@
     }
 }
 
-- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML toRecepients:(NSArray *)recepients
+- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML toRecepients:(NSArray *)recepients ccRecepients:(NSArray *)ccRecepients bccRecepients:(NSArray *)bccRecepients
 {
     if (self.canShareViaEmail)
     {
@@ -85,6 +100,8 @@
         [mailController setSubject:subject];
         [mailController setMessageBody:message isHTML:HTML];
         [mailController setToRecipients:recepients];
+        [mailController setCcRecipients:ccRecepients];
+        [mailController setBccRecipients:bccRecepients];
         mailController.mailComposeDelegate = self;
         [self presentViewController:mailController animated:YES completion:nil];
     }
@@ -175,12 +192,12 @@
         {
             [composeController addImage:image];
         }
-        
+
         composeController.completionHandler = ^(SLComposeViewControllerResult result) {
             [self dismissViewControllerAnimated:YES completion:nil];
             if (self.sharingCompleted)
             {
-                self.sharingCompleted((result == SLComposeViewControllerResultDone), serviceForNetwork(network));
+                self.sharingCompleted((result == SLComposeViewControllerResultDone), [UIViewController serviceForNetwork:network]);
             }
         };
         [self presentViewController:composeController animated:YES completion:nil];
@@ -200,10 +217,10 @@
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error sending email!", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
         [alert show];
     }
-    
+
     if (self.sharingCompleted)
     {
-        self.sharingCompleted((result != MFMailComposeResultFailed), SharingServiceTextMessage);
+        self.sharingCompleted((result != MFMailComposeResultFailed), emailSharingService);
     }
 }
 
@@ -216,101 +233,34 @@
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"An error occurred sending this message" message:nil delegate:self cancelButtonTitle:@"Sorry :(" otherButtonTitles:nil, nil];
         [alert show];
     }
-    
+
     if (self.sharingCompleted)
     {
-        self.sharingCompleted((result != MessageComposeResultFailed), SharingServiceTextMessage);
+        self.sharingCompleted((result != MessageComposeResultFailed), textMessageSharingService);
     }
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark - Public methods
-
-NSString * stringForService(SharingService service)
++ (NSString *)serviceForNetwork:(NSString *)network
 {
-    NSString *string;
-    
-    switch (service)
-    {
-        case SharingServiceTextMessage:
-        {
-            string = @"text_message";
-            break;
-        }
-            
-        case SharingServiceEmail:
-        {
-            string = @"email";
-            break;
-        }
-            
-        case SharingServiceTwitter:
-        {
-            string = @"twitter";
-            break;
-        }
-            
-        case SharingServiceFacebook:
-        {
-            string = @"facebook";
-            break;
-        }
-            
-        case SharingServiceSinaWeibo:
-        {
-            string = @"sina_weibo";
-            break;
-        }
-            
-        case SharingServiceTencentWeibo:
-        {
-            string = @"tencent_weibo";
-            break;
-        }
-            
-        case SharingServiceError:
-        {
-            string = @"error";
-            break;
-        }
-            
-        default:
-            break;
-    }
-    
-    return string;
-}
+    NSString *service = nil;
 
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark - Private helpers
-
-SharingService serviceForNetwork(NSString *network)
-{
-    SharingService service;
-    
     if ([network isEqualToString:SLServiceTypeTwitter])
     {
-        service = SharingServiceTwitter;
+        service = twitterSharingService;
     }
     else if ([network isEqualToString:SLServiceTypeFacebook])
     {
-        service = SharingServiceFacebook;
+        service = facebookSharingService;
     }
     else if ([network isEqualToString:SLServiceTypeSinaWeibo])
     {
-        service = SharingServiceSinaWeibo;
+        service = sinaWeiboSharingService;
     }
     else if ([network isEqualToString:SLServiceTypeTencentWeibo])
     {
-        service = SharingServiceTencentWeibo;
+        service = tencentWeiboSharingService;
     }
-    else
-    {
-        service = SharingServiceError;
-    }
-    
+
     return service;
 }
 
