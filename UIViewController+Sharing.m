@@ -43,6 +43,26 @@ NSString * const cancelledSharingService = @"cancelled";
     return objc_getAssociatedObject(self, @selector(setSharingCompleted:));
 }
 
+- (UIColor *)barButtonItemTintColor
+{
+    return objc_getAssociatedObject(self, @selector(setBarButtonItemTintColor:));
+}
+
+- (void)setBarButtonItemTintColor:(UIColor *)color
+{
+    objc_setAssociatedObject(self, @selector(setBarButtonItemTintColor:), color, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSDictionary *)titleTextAttributes
+{
+    return objc_getAssociatedObject(self, @selector(setTitleTextAttributes:));
+}
+
+- (void)setTitleTextAttributes:(NSDictionary *)titleTextAttributes
+{
+    objc_setAssociatedObject(self, @selector(setTitleTextAttributes:), titleTextAttributes, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Sharing state
@@ -88,6 +108,16 @@ NSString * const cancelledSharingService = @"cancelled";
         MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
         messageController.messageComposeDelegate = self;
         messageController.body = message;
+        
+        if (self.titleTextAttributes)
+        {
+            messageController.navigationBar.titleTextAttributes = self.titleTextAttributes;
+        }
+        if (self.barButtonItemTintColor)
+        {
+            messageController.navigationBar.tintColor = self.barButtonItemTintColor;
+        }
+        
         [self presentViewController:messageController animated:YES completion:nil];
     }
 }
@@ -102,13 +132,23 @@ NSString * const cancelledSharingService = @"cancelled";
         [mailController setToRecipients:recepients];
         [mailController setCcRecipients:ccRecepients];
         [mailController setBccRecipients:bccRecepients];
+        
+        if (self.titleTextAttributes)
+        {
+            mailController.navigationBar.titleTextAttributes = self.titleTextAttributes;
+        }
+        if (self.barButtonItemTintColor)
+        {
+            mailController.navigationBar.tintColor = self.barButtonItemTintColor;
+        }
+        
         mailController.mailComposeDelegate = self;
         [self presentViewController:mailController animated:YES completion:nil];
     }
     else
     {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have email set up.", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
-        [alert show];
+        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have email set up.", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
+        //        [alert show];
     }
 }
 
@@ -120,8 +160,8 @@ NSString * const cancelledSharingService = @"cancelled";
     }
     else
     {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Facebook set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
-        [alert show];
+        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Facebook set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
+        //        [alert show];
     }
 }
 
@@ -133,8 +173,8 @@ NSString * const cancelledSharingService = @"cancelled";
     }
     else
     {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Twitter set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
-        [alert show];
+        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Twitter set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
+        //        [alert show];
     }
 }
 
@@ -146,8 +186,8 @@ NSString * const cancelledSharingService = @"cancelled";
     }
     else
     {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Sina Weibo set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
-        [alert show];
+        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Sina Weibo set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
+        //        [alert show];
     }
 }
 
@@ -159,8 +199,8 @@ NSString * const cancelledSharingService = @"cancelled";
     }
     else
     {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Tencent Weibo set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
-        [alert show];
+        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Tencent Weibo set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
+        //        [alert show];
     }
 }
 
@@ -192,7 +232,7 @@ NSString * const cancelledSharingService = @"cancelled";
         {
             [composeController addImage:image];
         }
-
+        
         composeController.completionHandler = ^(SLComposeViewControllerResult result) {
             [self dismissViewControllerAnimated:YES completion:nil];
             if (self.sharingCompleted)
@@ -214,10 +254,10 @@ NSString * const cancelledSharingService = @"cancelled";
     
     if (result == MFMailComposeResultFailed)
     {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error sending email!", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
-        [alert show];
+        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Error sending email!", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
+        //        [alert show];
     }
-
+    
     if (self.sharingCompleted)
     {
         self.sharingCompleted((result != MFMailComposeResultFailed), emailSharingService);
@@ -230,10 +270,10 @@ NSString * const cancelledSharingService = @"cancelled";
     
     if (result == MessageComposeResultFailed)
     {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"An error occurred sending this message" message:nil delegate:self cancelButtonTitle:@"Sorry :(" otherButtonTitles:nil, nil];
-        [alert show];
+        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"An error occurred sending this message" message:nil delegate:self cancelButtonTitle:@"Sorry :(" otherButtonTitles:nil, nil];
+        //        [alert show];
     }
-
+    
     if (self.sharingCompleted)
     {
         self.sharingCompleted((result != MessageComposeResultFailed), textMessageSharingService);
@@ -243,7 +283,7 @@ NSString * const cancelledSharingService = @"cancelled";
 + (NSString *)serviceForNetwork:(NSString *)network
 {
     NSString *service = nil;
-
+    
     if ([network isEqualToString:SLServiceTypeTwitter])
     {
         service = twitterSharingService;
@@ -260,7 +300,7 @@ NSString * const cancelledSharingService = @"cancelled";
     {
         service = tencentWeiboSharingService;
     }
-
+    
     return service;
 }
 

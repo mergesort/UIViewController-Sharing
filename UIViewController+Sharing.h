@@ -27,9 +27,9 @@ extern NSString * const cancelledSharingService;
 
 @interface UIViewController (Sharing)
 <
-    MFMailComposeViewControllerDelegate,
-    MFMessageComposeViewControllerDelegate,
-    UINavigationControllerDelegate
+MFMailComposeViewControllerDelegate,
+MFMessageComposeViewControllerDelegate,
+UINavigationControllerDelegate
 >
 
 - (BOOL)canShareViaText;
@@ -48,6 +48,8 @@ extern NSString * const cancelledSharingService;
 - (void)shareViaCopyString:(NSString *)string;
 - (void)shareViaCopyURL:(NSURL *)URL;
 
+@property (nonatomic, copy) UIColor *barButtonItemTintColor;
+@property (nonatomic, copy) NSDictionary *titleTextAttributes;
 @property (nonatomic, copy) void (^sharingCompleted)(BOOL success, NSString *sharingService);
 
 @end
