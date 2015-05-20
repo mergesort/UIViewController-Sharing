@@ -27,9 +27,9 @@ extern NSString * const cancelledSharingService;
 
 @interface UIViewController (Sharing)
 <
-MFMailComposeViewControllerDelegate,
-MFMessageComposeViewControllerDelegate,
-UINavigationControllerDelegate
+    MFMailComposeViewControllerDelegate,
+    MFMessageComposeViewControllerDelegate,
+    UINavigationControllerDelegate
 >
 
 - (BOOL)canShareViaText;
@@ -41,10 +41,10 @@ UINavigationControllerDelegate
 
 - (void)shareViaTextWithMessage:(NSString *)message;
 - (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML toRecepients:(NSArray *)recepients ccRecepients:(NSArray *)ccRecepients bccRecepients:(NSArray *)bccRecepients;
-- (void)shareViaFacebookWithMessage:(NSString *)message withImage:(UIImage *)image;
-- (void)shareViaTwitterWithMessage:(NSString *)message withImage:(UIImage *)image;
-- (void)shareViaSinaWeiboWithMessage:(NSString *)message withImage:(UIImage *)image;
-- (void)shareViaTencentWeiboWithMessage:(NSString *)message withImage:(UIImage *)image;
+- (void)shareViaFacebookWithMessage:(NSString *)message withImage:(UIImage *)image withURLs:(NSArray *)URLs;
+- (void)shareViaTwitterWithMessage:(NSString *)message withImage:(UIImage *)image withURLs:(NSArray *)URLs;
+- (void)shareViaSinaWeiboWithMessage:(NSString *)message withImage:(UIImage *)image withURLs:(NSArray *)URLs;
+- (void)shareViaTencentWeiboWithMessage:(NSString *)message withImage:(UIImage *)image withURLs:(NSArray *)URLs;
 - (void)shareViaCopyString:(NSString *)string;
 - (void)shareViaCopyURL:(NSURL *)URL;
 
