@@ -11,15 +11,21 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Interface - MessageAttachment
+
+@interface MessageAttachment : NSObject
+
++ (nonnull instancetype)attachmentWithType:(nonnull NSString *)attachmentType filename:(nonnull NSString *)filename attachmentData:(nonnull NSData *)data;
+
+@end
+
+
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Constants
 
-extern NSString * const textMessageSharingService;
-extern NSString * const emailSharingService;
-extern NSString * const twitterSharingService;
-extern NSString * const facebookSharingService;
-extern NSString * const sinaWeiboSharingService;
-extern NSString * const tencentWeiboSharingService;
-extern NSString * const cancelledSharingService;
+extern NSString * const __nonnull textMessageSharingService;
+extern NSString * const __nonnull emailSharingService;
+extern NSString * const __nonnull cancelledSharingService;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -32,24 +38,25 @@ extern NSString * const cancelledSharingService;
     UINavigationControllerDelegate
 >
 
-- (BOOL)canShareViaText;
-- (BOOL)canShareViaEmail;
-- (BOOL)canShareViaTwitter;
-- (BOOL)canShareViaFacebook;
-- (BOOL)canShareViaSinaWeibo;
-- (BOOL)canShareViaTencentWeibo;
+@property (readonly) BOOL canShareViaText;
+@property (readonly) BOOL canShareViaEmail;
+@property (readonly) BOOL canShareViaTwitter;
+@property (readonly) BOOL canShareViaFacebook;
+@property (readonly) BOOL canShareViaSinaWeibo;
+@property (readonly) BOOL canShareViaTencentWeibo;
 
-- (void)shareViaTextWithMessage:(NSString *)message;
-- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML toRecepients:(NSArray *)recepients ccRecepients:(NSArray *)ccRecepients bccRecepients:(NSArray *)bccRecepients;
-- (void)shareViaFacebookWithMessage:(NSString *)message withImage:(UIImage *)image withURLs:(NSArray *)URLs;
-- (void)shareViaTwitterWithMessage:(NSString *)message withImage:(UIImage *)image withURLs:(NSArray *)URLs;
-- (void)shareViaSinaWeiboWithMessage:(NSString *)message withImage:(UIImage *)image withURLs:(NSArray *)URLs;
-- (void)shareViaTencentWeiboWithMessage:(NSString *)message withImage:(UIImage *)image withURLs:(NSArray *)URLs;
-- (void)shareViaCopyString:(NSString *)string;
-- (void)shareViaCopyURL:(NSURL *)URL;
+- (void)shareViaActivityController:(nullable NSArray *)excludedActivityTypes activityItems:(nullable NSArray *)activityItems applicationActivities:(nullable NSArray *)applicationActivities completionWithItemsHandler:(nullable void (^)(NSString * __nonnull activityType, BOOL completed, NSArray * __nullable returnedItems, NSError * __nullable activityError))completion;
+- (void)shareViaTextWithMessage:(nullable NSString *)message attachments:(nullable NSArray *)attachments;
+- (void)shareViaEmailWithSubject:(nullable NSString *)subject withMessage:(nullable NSString *)message isHTML:(BOOL)HTML toRecepients:(nullable NSArray *)recepients ccRecepients:(nullable NSArray *)ccRecepients bccRecepients:(nullable NSArray *)bccRecepients attachments:(nullable NSArray *)attachments;
+- (void)shareViaFacebookWithMessage:(nullable NSString *)message withImages:(nullable NSArray *)images withURLs:(nullable NSArray *)URLs;
+- (void)shareViaTwitterWithMessage:(nullable NSString *)message withImages:(nullable NSArray *)images withURLs:(nullable NSArray *)URLs;
+- (void)shareViaSinaWeiboWithMessage:(nullable NSString *)message withImages:(nullable NSArray *)images withURLs:(nullable NSArray *)URLs;
+- (void)shareViaTencentWeiboWithMessage:(nullable NSString *)message withImages:(nullable NSArray *)images withURLs:(nullable NSArray *)URLs;
+- (void)shareViaCopyString:(nullable NSString *)string;
+- (void)shareViaCopyURL:(nullable NSURL *)URL;
 
-@property (nonatomic, copy) UIColor *barButtonItemTintColor;
-@property (nonatomic, copy) NSDictionary *titleTextAttributes;
-@property (nonatomic, copy) void (^sharingCompleted)(BOOL success, NSString *sharingService);
+@property (nonatomic, copy, nullable) UIColor * barButtonItemTintColor;
+@property (nonatomic, copy, nullable) NSDictionary * titleTextAttributes;
+@property (nonatomic, copy, nullable) void  (^sharingCompleted)(BOOL success, NSString * __nonnull sharingService);
 
 @end

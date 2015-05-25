@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = 'UIViewController+Sharing'
-  spec.version      = '1.4'
+  spec.version      = '1.5'
   spec.license      = { :type => 'MIT', :file => 'LICENSE' }
   spec.homepage     = 'https://github.com/mergesort/UIViewController-Sharing'
   spec.authors      =  { 'Joe Fabisevich' => 'github@fabisevi.ch' }
@@ -10,5 +10,5 @@ Pod::Spec.new do |spec|
   spec.framework    = 'Foundation'
   spec.requires_arc = true
   spec.social_media_url = 'https://twitter.com/mergesort'
-  spec.ios.deployment_target = '7.0'
+  spec.ios.deployment_target = '8.0'
 end

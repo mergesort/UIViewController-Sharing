@@ -15,13 +15,40 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Constants
 
-NSString * const textMessageSharingService = @"text_message";
-NSString * const emailSharingService = @"email";
-NSString * const twitterSharingService = @"twitter";
-NSString * const facebookSharingService = @"facebook";
-NSString * const sinaWeiboSharingService = @"sina_weibo";
-NSString * const tencentWeiboSharingService = @"tencent_weibo";
-NSString * const cancelledSharingService = @"cancelled";
+NSString * const textMessageSharingService = @"com.apple.UIKit.activity.Message";
+NSString * const emailSharingService = @"com.apple.UIKit.activity.Mail";
+NSString * const cancelledSharingService = @"com.plugin.cancelled";
+
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Interface - MessageAttachment
+
+@interface MessageAttachment ()
+
+@property (nonnull) NSString *attachmentType;
+@property (nonnull) NSString *filename;
+@property (nonnull) NSData *attachmentData;
+
+@end
+
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Implementation - MessageAttachment
+
+@implementation MessageAttachment
+
++ (instancetype)attachmentWithType:(NSString *)attachmentType filename:(NSString *)filename attachmentData:(NSData *)data
+{
+    MessageAttachment *attachment = [[MessageAttachment alloc] init];
+
+    attachment.attachmentType = attachmentType;
+    attachment.filename = filename;
+    attachment.attachmentData = data;
+
+    return attachment;
+}
+
+@end
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -99,9 +126,32 @@ NSString * const cancelledSharingService = @"cancelled";
 
 
 ////////////////////////////////////////////////////////////////////////////////
-#pragma mark - Handle sharing
+#pragma mark - Public methods
 
-- (void)shareViaTextWithMessage:(NSString *)message
+- (void)shareViaActivityController:(NSArray *)excludedActivityTypes activityItems:(NSArray *)activityItems applicationActivities:(NSArray *)applicationActivities completionWithItemsHandler:(void (^)(NSString * activityType, BOOL completed, NSArray * returnedItems, NSError * activityError))completion
+{
+    UIActivityViewController *activityController = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:applicationActivities];
+    activityController.excludedActivityTypes = excludedActivityTypes;
+
+    activityController.completionWithItemsHandler = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError) {
+
+        if (completion)
+        {
+            completion(activityType, completed, returnedItems, activityError);
+        }
+
+        if (self.sharingCompleted)
+        {
+            NSString *sharingService = (activityType.length > 0) ? activityType : cancelledSharingService;
+            self.sharingCompleted((completed && !activityError), sharingService);
+        }
+    };
+    
+    [self presentViewController:activityController animated:YES completion:nil];
+   
+}
+
+- (void)shareViaTextWithMessage:(NSString *)message attachments:(NSArray *)attachments
 {
     if (self.canShareViaText)
     {
@@ -109,22 +159,32 @@ NSString * const cancelledSharingService = @"cancelled";
         messageController.messageComposeDelegate = self;
         messageController.body = message;
 
+        for (MessageAttachment *attachment in attachments)
+        {
+            [messageController addAttachmentData:attachment.attachmentData typeIdentifier:attachment.attachmentType filename:attachment.filename];
+        }
+
         if (self.titleTextAttributes)
         {
             messageController.navigationBar.titleTextAttributes = self.titleTextAttributes;
         }
+
         if (self.barButtonItemTintColor)
         {
             messageController.navigationBar.tintColor = self.barButtonItemTintColor;
         }
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
             [self presentViewController:messageController animated:YES completion:nil];
         });
     }
+    else
+    {
+        self.sharingCompleted(NO, textMessageSharingService);
+    }
 }
 
-- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML toRecepients:(NSArray *)recepients ccRecepients:(NSArray *)ccRecepients bccRecepients:(NSArray *)bccRecepients
+- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML toRecepients:(NSArray *)recepients ccRecepients:(NSArray *)ccRecepients bccRecepients:(NSArray *)bccRecepients attachments:(NSArray *)attachments
 {
     if (self.canShareViaEmail)
     {
@@ -134,7 +194,12 @@ NSString * const cancelledSharingService = @"cancelled";
         [mailController setToRecipients:recepients];
         [mailController setCcRecipients:ccRecepients];
         [mailController setBccRecipients:bccRecepients];
-        
+
+        for (MessageAttachment *attachment in attachments)
+        {
+            [mailController addAttachmentData:attachment.attachmentData mimeType:attachment.attachmentType fileName:attachment.filename];
+        }
+
         if (self.titleTextAttributes)
         {
             mailController.navigationBar.titleTextAttributes = self.titleTextAttributes;
@@ -151,62 +216,56 @@ NSString * const cancelledSharingService = @"cancelled";
     }
     else
     {
-        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have email set up.", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
-        //        [alert show];
+        self.sharingCompleted(NO, emailSharingService);
     }
 }
 
-- (void)shareViaFacebookWithMessage:(NSString *)message withImage:(UIImage *)image withURLs:(NSArray *)URLs
+- (void)shareViaFacebookWithMessage:(NSString *)message withImages:(NSArray *)images withURLs:(NSArray *)URLs
 {
     if (self.canShareViaFacebook)
     {
-        [self shareViaSLComposeViewController:SLServiceTypeFacebook withMessage:message withImage:image withURLs:URLs];
+        [self shareViaSLComposeViewController:SLServiceTypeFacebook withMessage:message withImages:images withURLs:URLs];
     }
     else
     {
-        self.sharingCompleted(NO, facebookSharingService);
-        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Facebook set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
-        //        [alert show];
+        self.sharingCompleted(NO, SLServiceTypeFacebook);
     }
 }
 
-- (void)shareViaTwitterWithMessage:(NSString *)message withImage:(UIImage *)image withURLs:(NSArray *)URLs
+
+- (void)shareViaTwitterWithMessage:(NSString *)message withImages:(NSArray *)images withURLs:(NSArray *)URLs
 {
     if (self.canShareViaTwitter)
     {
-        [self shareViaSLComposeViewController:SLServiceTypeTwitter withMessage:message withImage:image withURLs:URLs];
+        [self shareViaSLComposeViewController:SLServiceTypeTwitter withMessage:message withImages:images withURLs:URLs];
     }
     else
     {
-        self.sharingCompleted(NO, twitterSharingService);
-        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Twitter set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
-        //        [alert show];
+        self.sharingCompleted(NO, SLServiceTypeTwitter);
     }
 }
 
-- (void)shareViaSinaWeiboWithMessage:(NSString *)message withImage:(UIImage *)image withURLs:(NSArray *)URLs
+- (void)shareViaSinaWeiboWithMessage:(NSString *)message withImages:(NSArray *)images withURLs:(NSArray *)URLs
 {
     if (self.canShareViaSinaWeibo)
     {
-        [self shareViaSLComposeViewController:SLServiceTypeSinaWeibo withMessage:message withImage:image withURLs:URLs];
+        [self shareViaSLComposeViewController:SLServiceTypeSinaWeibo withMessage:message withImages:images withURLs:URLs];
     }
     else
     {
-        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Sina Weibo set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
-        //        [alert show];
+        self.sharingCompleted(NO, SLServiceTypeSinaWeibo);
     }
 }
 
-- (void)shareViaTencentWeiboWithMessage:(NSString *)message withImage:(UIImage *)image withURLs:(NSArray *)URLs
+- (void)shareViaTencentWeiboWithMessage:(NSString *)message withImages:(NSArray *)images withURLs:(NSArray *)URLs
 {
     if (self.canShareViaTencentWeibo)
     {
-        [self shareViaSLComposeViewController:SLServiceTypeTencentWeibo withMessage:message withImage:image withURLs:URLs];
+        [self shareViaSLComposeViewController:SLServiceTypeTencentWeibo withMessage:message withImages:images withURLs:URLs];
     }
     else
     {
-        //        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Looks like you don't have Tencent Weibo set up. You can do so in the iPhone's Settings", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Bummer", nil) otherButtonTitles:nil];
-        //        [alert show];
+        self.sharingCompleted(NO, SLServiceTypeTencentWeibo);
     }
 }
 
@@ -226,10 +285,10 @@ NSString * const cancelledSharingService = @"cancelled";
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Private helpers
 
-- (void)shareViaSLComposeViewController:(NSString *)network withMessage:(NSString *)message withImage:(UIImage *)image withURLs:(NSArray *)URLs
+- (void)shareViaSLComposeViewController:(NSString *)network withMessage:(NSString *)message withImages:(NSArray *)images withURLs:(NSArray *)URLs
 {
     NSString *initialText = message;
-    
+
     if ([SLComposeViewController isAvailableForServiceType:network])
     {
         SLComposeViewController *composeController = [SLComposeViewController composeViewControllerForServiceType:network];
@@ -240,7 +299,7 @@ NSString * const cancelledSharingService = @"cancelled";
             [composeController addURL:URL];
         }
 
-        if (image)
+        for (UIImage *image in images)
         {
             [composeController addImage:image];
         }
@@ -249,10 +308,10 @@ NSString * const cancelledSharingService = @"cancelled";
             [self dismissViewControllerAnimated:YES completion:nil];
             if (self.sharingCompleted)
             {
-                self.sharingCompleted((result == SLComposeViewControllerResultDone), [UIViewController serviceForNetwork:network]);
+                self.sharingCompleted((result == SLComposeViewControllerResultDone), network);
             }
         };
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
             [self presentViewController:composeController animated:YES completion:nil];
         });
@@ -261,17 +320,21 @@ NSString * const cancelledSharingService = @"cancelled";
 
 
 ////////////////////////////////////////////////////////////////////////////////
-#pragma mark - Sharing Delegates
+#pragma mark - Delegation - MFMailComposeViewController
 
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
 {
     [controller dismissViewControllerAnimated:YES completion:nil];
-    
+
     if (self.sharingCompleted)
     {
         self.sharingCompleted((result == MFMailComposeResultSent || result == MFMailComposeResultSaved), emailSharingService);
     }
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Delegation - MFMessageComposeViewController
 
 - (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
 {
@@ -281,30 +344,6 @@ NSString * const cancelledSharingService = @"cancelled";
     {
         self.sharingCompleted(result == MessageComposeResultSent, textMessageSharingService);
     }
-}
-
-+ (NSString *)serviceForNetwork:(NSString *)network
-{
-    NSString *service = nil;
-    
-    if ([network isEqualToString:SLServiceTypeTwitter])
-    {
-        service = twitterSharingService;
-    }
-    else if ([network isEqualToString:SLServiceTypeFacebook])
-    {
-        service = facebookSharingService;
-    }
-    else if ([network isEqualToString:SLServiceTypeSinaWeibo])
-    {
-        service = sinaWeiboSharingService;
-    }
-    else if ([network isEqualToString:SLServiceTypeTencentWeibo])
-    {
-        service = tencentWeiboSharingService;
-    }
-    
-    return service;
 }
 
 @end
