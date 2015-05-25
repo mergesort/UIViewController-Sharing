@@ -21,33 +21,30 @@ It's as simple as that.
 You can check out all the sharing choices are below.
 
 ```
-- (void)shareViaActivityController:(NSArray *)excludedActivityTypes activityItems:(NSArray *)activityItems applicationActivities:(NSArray *)applicationActivities completionWithItemsHandler:(void (^)(NSString *activityType, BOOL completed, NSArray * __returnedItems, NSError * __activityError))completion;
-- (void)shareViaTextWithMessage:(NSString *)message attachments:(NSArray *)attachments;
-- (void)shareViaEmailWithSubject:(NSString *)subject withMessage:(NSString *)message isHTML:(BOOL)HTML toRecepients:(NSArray *)recepients ccRecepients:(NSArray *)ccRecepients bccRecepients:(NSArray *)bccRecepients attachments:(NSArray *)attachments;
-- (void)shareViaFacebookWithMessage:(NSString *)message withImages:(NSArray *)images withURLs:(NSArray *)URLs;
-- (void)shareViaTwitterWithMessage:(NSString *)message withImages:(NSArray *)images withURLs:(NSArray *)URLs;
-- (void)shareViaSinaWeiboWithMessage:(NSString *)message withImages:(NSArray *)images withURLs:(NSArray *)URLs;
-- (void)shareViaTencentWeiboWithMessage:(NSString *)message withImages:(NSArray *)images withURLs:(NSArray *)URLs;
-- (void)shareViaCopyString:(NSString *)string;
-- (void)shareViaCopyURL:(NSURL *)URL;
+func shareViaActivityController(excludedActivityTypes: [AnyObject]?, activityItems: [AnyObject]?, applicationActivities: [AnyObject]?, completionWithItemsHandler completion: ((String, Bool, [AnyObject]?, NSError?) -> Void)?)
+func shareViaTextWithMessage(message: String?, attachments: [AnyObject]?)
+func shareViaEmailWithSubject(subject: String?, withMessage message: String?, isHTML HTML: Bool, toRecepients recepients: [AnyObject]?, ccRecepients: [AnyObject]?, bccRecepients: [AnyObject]?, attachments: [AnyObject]?)
+func shareViaFacebookWithMessage(message: String?, withImages images: [AnyObject]?, withURLs URLs: [AnyObject]?)
+func shareViaTwitterWithMessage(message: String?, withImages images: [AnyObject]?, withURLs URLs: [AnyObject]?)
+func shareViaSinaWeiboWithMessage(message: String?, withImages images: [AnyObject]?, withURLs URLs: [AnyObject]?)
+func shareViaTencentWeiboWithMessage(message: String?, withImages images: [AnyObject]?, withURLs URLs: [AnyObject]?)
+func shareViaCopyString(string: String?)
+func shareViaCopyURL(URL: NSURL?)
 ```
 
 Customizing the navigation bar for `MFMailComposeViewController` and `MFMessageComposeViewController` is such a pain... But not any more. Just set a couple properties and when you share, it will implement your fun look and feel. And when you're done, no harm no foul, everything gets reset.
 
 ```
-@property (nonatomic, copy) UIColor * barButtonItemTintColor;
-@property (nonatomic, copy) NSDictionary * titleTextAttributes;
+var barButtonItemTintColor: UIColor?
+var titleTextAttributes: [NSObject : AnyObject]?
 ```
-
 
 Callbacks when your sharing completes are great, for example if you'd like to track analytics on where people are sharing, if you're creepy like that.
 
 ```
-@property (nonatomic, copy) void  (^sharingCompleted)(BOOL success, NSString * sharingService);
+var sharingCompleted: ((Bool, String) -> Void)?
 ```
 
-
 `UIViewController+Sharing` is uses `nonnull` and `nullable` annotations, so it plays very nicely with your Swift or Objective-C code.
-
 
 I've run out of words, so go and use the library!
