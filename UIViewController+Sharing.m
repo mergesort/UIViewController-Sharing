@@ -180,7 +180,10 @@ NSString * const cancelledSharingService = @"com.plugin.cancelled";
     }
     else
     {
-        self.sharingCompleted(NO, textMessageSharingService);
+        if (self.sharingCompleted)
+        {
+            self.sharingCompleted(NO, textMessageSharingService);
+        }
     }
 }
 
@@ -216,7 +219,10 @@ NSString * const cancelledSharingService = @"com.plugin.cancelled";
     }
     else
     {
-        self.sharingCompleted(NO, emailSharingService);
+        if (self.sharingCompleted)
+        {
+            self.sharingCompleted(NO, emailSharingService);
+        }
     }
 }
 
@@ -228,7 +234,10 @@ NSString * const cancelledSharingService = @"com.plugin.cancelled";
     }
     else
     {
-        self.sharingCompleted(NO, SLServiceTypeFacebook);
+        if (self.sharingCompleted)
+        {
+            self.sharingCompleted(NO, SLServiceTypeFacebook);
+        }
     }
 }
 
@@ -241,7 +250,10 @@ NSString * const cancelledSharingService = @"com.plugin.cancelled";
     }
     else
     {
-        self.sharingCompleted(NO, SLServiceTypeTwitter);
+        if (self.sharingCompleted)
+        {
+            self.sharingCompleted(NO, SLServiceTypeTwitter);
+        }
     }
 }
 
@@ -253,7 +265,10 @@ NSString * const cancelledSharingService = @"com.plugin.cancelled";
     }
     else
     {
-        self.sharingCompleted(NO, SLServiceTypeSinaWeibo);
+        if (self.sharingCompleted)
+        {
+            self.sharingCompleted(NO, SLServiceTypeSinaWeibo);
+        }
     }
 }
 
@@ -265,7 +280,10 @@ NSString * const cancelledSharingService = @"com.plugin.cancelled";
     }
     else
     {
-        self.sharingCompleted(NO, SLServiceTypeTencentWeibo);
+        if (self.sharingCompleted)
+        {
+            self.sharingCompleted(NO, SLServiceTypeTencentWeibo);
+        }
     }
 }
 
